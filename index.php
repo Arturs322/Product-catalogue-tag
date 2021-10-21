@@ -62,11 +62,42 @@ switch ($routeInfo[0]) {
         $handler = $routeInfo[1];
         $vars = $routeInfo[2];
 
+        $middlewares = [
+            'ProductsController@show' => [
+                AuthorizedMiddleware::class
+            ],
+            'ProductsController@create' => [
+                AuthorizedMiddleware::class
+            ],
+            'ProductsController@users' => [
+                AuthorizedMiddleware::class
+            ],
+            'ProductsController@login' => [
+                AuthorizedMiddleware::class
+            ],
+            'ProductsController@logout' => [
+                AuthorizedMiddleware::class
+            ],
+        ];
+        if (array_key_exists($handler, $middlewares))
+        {
+            foreach ($middlewares[$handler] as $middleware)
+            {
+                (new $middleware)->handle();
+            }
+        }
+        
         [$controller, $method] = explode('@', $handler);
         $controller = 'App\Controllers\\' . $controller;
         $controller = new $controller;
         $response = $controller->$method($vars);
 
+        if ($response instanceof View) {
+            echo $templateEngine->render(
+                $response->getTemplate(),
+                $response->getArgs(),
+            );
+        }
         if ($response instanceof View) {
             echo $templateEngine->render(
                 $response->getTemplate(),
