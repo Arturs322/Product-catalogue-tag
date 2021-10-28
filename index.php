@@ -1,8 +1,11 @@
 <?php
 
+use DI\Container;
+use App\Middlewares\AuthorizedMiddleware;
 use App\View;
 use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
+use DI\ContainerBuilder;
 
 require_once "app/Views/index.twig";
 require_once 'vendor/autoload.php';
@@ -87,6 +90,8 @@ switch ($routeInfo[0]) {
             }
         }
         
+        $builder = new ContainerBuilder();
+        $container = $builder->build();
         [$controller, $method] = explode('@', $handler);
         $controller = 'App\Controllers\\' . $controller;
         $controller = new $controller;
